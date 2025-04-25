@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Burak Sezer
+// Copyright 2020-2025 The Olric Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 package main
 
 import (
-	"github.com/buraksezer/olric-consul-plugin/lib"
+	"github.com/olric-data/olric-consul-plugin/lib"
 )
 
 // ServiceDiscovery defines a service discovery plugin

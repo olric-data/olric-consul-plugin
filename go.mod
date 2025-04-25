@@ -1,9 +1,9 @@
-module github.com/buraksezer/olric-consul-plugin
+module github.com/olric-data/olric-consul-plugin
 
-go 1.14
+go 1.23
 
 require (
-	github.com/Jeffail/gabs/v2 v2.6.1
-	github.com/hashicorp/go-sockaddr v1.0.2
-	github.com/mitchellh/mapstructure v1.4.1
+	github.com/Jeffail/gabs/v2 v2.7.0
+	github.com/hashicorp/go-sockaddr v1.0.7
+	github.com/mitchellh/mapstructure v1.5.0
 )
