@@ -46,6 +46,7 @@ type Config struct {
 	InsecureSkipVerify    bool
 }
 
+// ConsulDiscovery is responsible for managing service discovery operations with Consul, including registration and querying.
 type ConsulDiscovery struct {
 	Config  *Config
 	service string
@@ -54,6 +55,8 @@ type ConsulDiscovery struct {
 	client  *http.Client
 }
 
+// getPrivateIP attempts to retrieve a suitable private IP address and returns it as a string.
+// It returns an error if it fails to retrieve or parse the IP address.
 func getPrivateIP() (string, error) {
 	// if we're not bound to a specific IP, let's use a suitable private IP address.
 	ipStr, err := sockaddr.GetPrivateIP()
@@ -81,7 +84,7 @@ func (s *ConsulDiscovery) checkErrors() error {
 	return nil
 }
 
-// SetConfig registers plugin configuration
+// SetConfig initializes the Config field with the provided map, decoding it into the Config struct. Returns an error on failure.
 func (s *ConsulDiscovery) SetConfig(c map[string]interface{}) error {
 	var cfg Config
 	err := mapstructure.Decode(c, &cfg)
@@ -92,12 +95,12 @@ func (s *ConsulDiscovery) SetConfig(c map[string]interface{}) error {
 	return nil
 }
 
-// SetLogger sets an appropriate
+// SetLogger sets the logger instance to be used for logging within the ConsulDiscovery instance.
 func (s *ConsulDiscovery) SetLogger(l *log.Logger) {
 	s.log = l
 }
 
-// Initialize initializes the plugin: registers some internal data structures, clients etc.
+// Initialize sets up the ConsulDiscovery instance, configuring the HTTP client and validating required properties.
 func (s *ConsulDiscovery) Initialize() error {
 	if err := s.checkErrors(); err != nil {
 		return err
@@ -110,6 +113,9 @@ func (s *ConsulDiscovery) Initialize() error {
 	return nil
 }
 
+// processPayload processes and validates the payload configuration for the service registration in Consul.
+// It ensures all required fields are present and assigns defaults where necessary.
+// Returns an error if validation or encoding fails.
 func (s *ConsulDiscovery) processPayload() error {
 	payload := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(s.Config.Payload), &payload); err != nil {
@@ -161,6 +167,7 @@ func (s *ConsulDiscovery) processPayload() error {
 	return nil
 }
 
+// doRequest sends an HTTP request and checks the response status. Adds a Consul token header if configured. Returns error on failure.
 func (s *ConsulDiscovery) doRequest(op string, req *http.Request) error {
 	if s.Config.Token != "" {
 		req.Header.Set("X-Consul-Token", s.Config.Token)
@@ -182,7 +189,8 @@ func (s *ConsulDiscovery) doRequest(op string, req *http.Request) error {
 	return nil
 }
 
-// Register registers this node to a service discovery directory.
+// Register registers the service with the Consul agent using the provided configuration and payload.
+// It validates the configuration, processes the payload, constructs the registration request, and sends it to Consul.
 func (s *ConsulDiscovery) Register() error {
 	if err := s.checkErrors(); err != nil {
 		return err
@@ -211,7 +219,7 @@ func (s *ConsulDiscovery) Register() error {
 	return s.doRequest("register", req)
 }
 
-// Deregister removes this node from a service discovery directory.
+// Deregister removes the registered service from the Consul agent by sending a deregistration request to the provided address.
 func (s *ConsulDiscovery) Deregister() error {
 	u, err := url.Parse(s.Config.Address)
 	if err != nil {
@@ -225,7 +233,8 @@ func (s *ConsulDiscovery) Deregister() error {
 	return s.doRequest("deregister", req)
 }
 
-// DiscoverPeers returns a list of known Olric nodes.
+// DiscoverPeers retrieves a list of peer addresses from the Consul service for the configured service name.
+// It validates configuration, constructs a request, parses the response, and returns discovered peers or an error.
 func (s *ConsulDiscovery) DiscoverPeers() ([]string, error) {
 	if err := s.checkErrors(); err != nil {
 		return nil, err
@@ -283,7 +292,7 @@ func (s *ConsulDiscovery) DiscoverPeers() ([]string, error) {
 	return peers, nil
 }
 
-// Close stops underlying goroutines, if there is any. It should be a blocking call.
+// Close shuts down the ConsulDiscovery instance, releasing any held resources and cleaning up state.
 func (s *ConsulDiscovery) Close() error {
 	// Dummy implementation
 	return nil

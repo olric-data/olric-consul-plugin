@@ -8,7 +8,7 @@ to maintain a static list of alive peers in the cluster.
 Get the code:
 
 ```
-go get -u github.com/buraksezer/olric-consul-plugin
+go get -u github.com/olric-data/olric-consul-plugin
 ```
 
 ## Usage
@@ -62,7 +62,7 @@ In embedded member deployment scenario:
 
 ```go
 // import config package
-"github.com/buraksezer/olric/config"
+"github.com/olric-data/olric/config"
 
 // Get a new Olric config for local environment
 c := config.New("local")
@@ -100,7 +100,7 @@ You can load the plugin directly as a library:
 
 ```go
 import (
-    olricconsul "github.com/buraksezer/olric-consul-plugin/lib"
+    olricconsul "github.com/olric-data/olric-consul-plugin/lib"
 )
 
 //...
